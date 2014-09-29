@@ -1509,7 +1509,11 @@ function _menu_tree_check_access(&$tree) {
   $new_tree = array();
   foreach ($tree as $key => $v) {
     $item = &$tree[$key]['link'];
-    _menu_link_translate($item);
+    // Prevent translating menu links twice.
+    if (!isset($item['menu_link_translated'])) {
+      _menu_link_translate($item);
+      $item['menu_link_translated'] = TRUE;
+    }
     if ($item['access'] || ($item['in_active_trail'] && strpos($item['href'], '%') !== FALSE)) {
       if ($tree[$key]['below']) {
         _menu_tree_check_access($tree[$key]['below']);
@@ -3624,7 +3628,7 @@ function _menu_router_build($callbacks) {
       $sort[$path] = $number_parts;
     }
   }
-  array_multisort($sort, SORT_NUMERIC, $menu, SORT_STRING);
+  array_multisort($sort, SORT_NUMERIC, $menu);
   // Apply inheritance rules.
   foreach ($menu as $path => $v) {
     $item = &$menu[$path];
